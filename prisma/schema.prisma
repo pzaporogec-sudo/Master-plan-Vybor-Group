@@ -55,3 +55,41 @@ model AuditEvent {
  action String
  createdAt DateTime @default(now())
 }
+
+// Real inputs are isolated from the educational planning engine.
+model Territory {
+ id String @id @default(cuid())
+ name String
+ revision Int @default(1)
+ createdAt DateTime @default(now())
+ sources SourceDocument[]
+ analyses DataAnalysis[]
+}
+model SourceDocument {
+ id String @id @default(cuid())
+ territoryId String
+ territory Territory @relation(fields: [territoryId], references: [id])
+ name String
+ origin String
+ sha256 String
+ content Bytes
+ segments String
+ uploadedAt DateTime @default(now())
+ @@unique([territoryId, sha256])
+}
+model DataAnalysis {
+ id String @id @default(cuid())
+ territoryId String
+ territory Territory @relation(fields: [territoryId], references: [id])
+ revision Int
+ sourceIds String
+ actorId String
+ model String
+ status String @default("running")
+ sessionId String?
+ turnId String?
+ result String?
+ error String?
+ cleanup String @default("not_created")
+ createdAt DateTime @default(now())
+}
